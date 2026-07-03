@@ -16,17 +16,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'antigravity-secret-key-12345';
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Create public/shares directory if not exists
-const sharesDir = path.join(__dirname, 'public', 'shares');
-if (!fs.existsSync(sharesDir)) {
-  fs.mkdirSync(sharesDir, { recursive: true });
-}
-
 // ==========================================
 // DATABASE CONFIGURATION
 // ==========================================
@@ -37,7 +26,7 @@ if (dbUrl && (dbUrl.startsWith('postgres://') || dbUrl.startsWith('postgresql://
   console.log('🔌 Connecting to PostgreSQL database...');
   const dialectOptions = {};
   
-  if (dbUrl.includes('amazonaws.com') || process.env.NODE_ENV === 'production') {
+  if (dbUrl.includes('amazonaws.com') || process.env.NODE_ENV === 'production' || process.env.VERCEL) {
     dialectOptions.ssl = {
       require: true,
       rejectUnauthorized: false
@@ -50,10 +39,15 @@ if (dbUrl && (dbUrl.startsWith('postgres://') || dbUrl.startsWith('postgresql://
     logging: false
   });
 } else {
-  console.log('🔌 Connecting to local SQLite database (database.sqlite)...');
+  // If running on Vercel, write to /tmp/database.sqlite
+  const storagePath = process.env.VERCEL
+    ? '/tmp/database.sqlite'
+    : path.join(__dirname, 'database.sqlite');
+
+  console.log(`🔌 Connecting to local SQLite database (${storagePath})...`);
   sequelize = new Sequelize({
     dialect: 'sqlite',
-    storage: path.join(__dirname, 'database.sqlite'),
+    storage: storagePath,
     logging: false
   });
 }
@@ -71,7 +65,7 @@ const User = sequelize.define('User', {
     allowNull: false,
     unique: true,
     validate: {
-      is: /^[a-zA-Z0-9_]+$/i, // alphanumeric and underscore only
+      is: /^[a-zA-Z0-9_]+$/i,
       len: [3, 20]
     }
   },
@@ -144,66 +138,11 @@ User.hasMany(Application, { onDelete: 'CASCADE', foreignKey: 'userId' });
 Application.belongsTo(User, { foreignKey: 'userId' });
 
 // ==========================================
-// AUTH MIDDLEWARE
-// ==========================================
-const authMiddleware = async (req, res, next) => {
-  try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Access denied. No credentials supplied.' });
-    }
-
-    const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, JWT_SECRET);
-    
-    const user = await User.findByPk(decoded.id);
-    if (!user) {
-      return res.status(401).json({ error: 'Access denied. User profile not found.' });
-    }
-
-    req.user = user;
-    next();
-  } catch (error) {
-    res.status(401).json({ error: 'Access denied. Invalid or expired token.' });
-  }
-};
-
-// ==========================================
-// STATIC PORTFOLIO REGENERATION
-// ==========================================
-async function triggerStaticUpdate(userUuid) {
-  try {
-    const user = await User.findOne({ where: { uuid: userUuid } });
-    if (!user) {
-      console.error(`❌ User not found with UUID ${userUuid} for static page regeneration.`);
-      return;
-    }
-
-    const applications = await Application.findAll({
-      where: { userId: user.id },
-      order: [['applied_date', 'DESC']]
-    });
-
-    const htmlContent = generateHTML(user, applications);
-    const filePath = path.join(sharesDir, `${userUuid}.html`);
-    
-    fs.writeFileSync(filePath, htmlContent, 'utf8');
-    console.log(`✨ Regenerated static portfolio for ${user.name} at public/shares/${userUuid}.html`);
-  } catch (error) {
-    console.error('❌ Failed to regenerate static portfolio page:', error);
-  }
-}
-
-// ==========================================
-// SEED SEED DATA IF DB EMPTY
+// DATABASE SEEDER
 // ==========================================
 async function seedDatabase() {
   const userCount = await User.count();
   if (userCount > 0) {
-    const users = await User.findAll();
-    for (const u of users) {
-      await triggerStaticUpdate(u.uuid);
-    }
     return;
   }
 
@@ -218,7 +157,7 @@ async function seedDatabase() {
     username: 'jane',
     email: 'jane@example.com',
     password: hashedPassword,
-    uuid: 'jane-doe-portfolio-uuid-12345' // fixed UUID for ease of default testing
+    uuid: 'jane-doe-portfolio-uuid-12345'
   });
 
   const today = new Date();
@@ -239,7 +178,7 @@ async function seedDatabase() {
       interview_date: getPastDateStr(70),
       decision: 'Offer',
       decision_date: getPastDateStr(60),
-      notes: 'Received a competitive compensation package. Recruiter was highly responsive!'
+      notes: 'Received competitive offer.'
     },
     {
       company: 'Meta',
@@ -251,7 +190,7 @@ async function seedDatabase() {
       interview_date: getPastDateStr(55),
       decision: 'Rejected',
       decision_date: getPastDateStr(45),
-      notes: 'Passed the coding rounds but failed the systems design round. Review networks and load balancers.'
+      notes: 'Passed coding rounds but failed systems design.'
     },
     {
       company: 'Stripe',
@@ -263,7 +202,7 @@ async function seedDatabase() {
       interview_date: getPastDateStr(40),
       decision: 'Withdrawn',
       decision_date: getPastDateStr(35),
-      notes: 'Decided to withdraw after receiving the Google offer. Loved their interview layout.'
+      notes: 'Withdrew after Google offer.'
     },
     {
       company: 'Netflix',
@@ -271,8 +210,7 @@ async function seedDatabase() {
       applied_date: getPastDateStr(45),
       oa_checked: false,
       interview_checked: false,
-      decision: 'Pending',
-      notes: 'Referral submitted. Waiting on recruiting team.'
+      decision: 'Pending'
     },
     {
       company: 'Amazon',
@@ -281,8 +219,7 @@ async function seedDatabase() {
       oa_checked: true,
       oa_date: getPastDateStr(30),
       interview_checked: false,
-      decision: 'Pending',
-      notes: 'Completed the OA. Relational and debugging sections felt solid.'
+      decision: 'Pending'
     },
     {
       company: 'Microsoft',
@@ -290,8 +227,7 @@ async function seedDatabase() {
       applied_date: getPastDateStr(21),
       oa_checked: false,
       interview_checked: false,
-      decision: 'Pending',
-      notes: 'Applied through university portal.'
+      decision: 'Pending'
     },
     {
       company: 'OpenAI',
@@ -300,8 +236,7 @@ async function seedDatabase() {
       oa_checked: false,
       interview_checked: true,
       interview_date: getPastDateStr(7),
-      decision: 'Pending',
-      notes: 'Chatted with technical lead. Scheduled for final interview loops next week.'
+      decision: 'Pending'
     },
     {
       company: 'Tesla',
@@ -310,8 +245,7 @@ async function seedDatabase() {
       oa_checked: true,
       oa_date: getPastDateStr(10),
       interview_checked: false,
-      decision: 'Rejected',
-      notes: 'Automated rejection after OA submission.'
+      decision: 'Rejected'
     },
     {
       company: 'Airbnb',
@@ -319,8 +253,7 @@ async function seedDatabase() {
       applied_date: getPastDateStr(7),
       oa_checked: false,
       interview_checked: false,
-      decision: 'Pending',
-      notes: 'Resume screening in progress.'
+      decision: 'Pending'
     },
     {
       company: 'Uber',
@@ -328,8 +261,7 @@ async function seedDatabase() {
       applied_date: getPastDateStr(4),
       oa_checked: false,
       interview_checked: false,
-      decision: 'Pending',
-      notes: 'Recruiter reached out via LinkedIn.'
+      decision: 'Pending'
     },
     {
       company: 'Figma',
@@ -337,8 +269,7 @@ async function seedDatabase() {
       applied_date: getPastDateStr(2),
       oa_checked: false,
       interview_checked: false,
-      decision: 'Pending',
-      notes: 'Fascinated by their multiplayer collaboration architecture. Hope to get an interview!'
+      decision: 'Pending'
     },
     {
       company: 'Slack',
@@ -346,15 +277,13 @@ async function seedDatabase() {
       applied_date: getPastDateStr(0),
       oa_checked: false,
       interview_checked: false,
-      decision: 'Pending',
-      notes: 'Standard application on company website.'
+      decision: 'Pending'
     }
   ];
 
   for (const app of janeApps) {
     await Application.create({ ...app, userId: jane.id });
   }
-  await triggerStaticUpdate(jane.uuid);
 
   // 2. Create Bob Smith
   const bob = await User.create({
@@ -375,8 +304,7 @@ async function seedDatabase() {
       interview_checked: true,
       interview_date: getPastDateStr(20),
       decision: 'Offer',
-      decision_date: getPastDateStr(10),
-      notes: 'Got the offer! Thrilled.'
+      decision_date: getPastDateStr(10)
     },
     {
       company: 'Amazon',
@@ -387,8 +315,7 @@ async function seedDatabase() {
       interview_checked: true,
       interview_date: getPastDateStr(15),
       decision: 'Rejected',
-      decision_date: getPastDateStr(8),
-      notes: 'Rejected after final round.'
+      decision_date: getPastDateStr(8)
     },
     {
       company: 'Microsoft',
@@ -444,10 +371,94 @@ async function seedDatabase() {
   for (const app of bobApps) {
     await Application.create({ ...app, userId: bob.id });
   }
-  await triggerStaticUpdate(bob.uuid);
 
   console.log('🌱 Seed successful! Seeded Jane Doe ("jane") and Bob Smith ("bob").');
 }
+
+// ==========================================
+// DATABASE LAZY INITIALIZATION MIDDLEWARE
+// ==========================================
+let dbSynced = false;
+const dbInitMiddleware = async (req, res, next) => {
+  // Exclude static assets from db initialization to prevent lag
+  const isStaticFile = req.path.includes('.') && !req.path.endsWith('.html');
+  if (isStaticFile) {
+    return next();
+  }
+
+  if (!dbSynced) {
+    try {
+      await sequelize.authenticate();
+      console.log('✅ Database connection established.');
+      
+      await sequelize.sync({ alter: true });
+      console.log('✅ Database models synchronized.');
+
+      await seedDatabase();
+      dbSynced = true;
+    } catch (error) {
+      console.error('❌ Database lazy-initialization or sync failed:', error);
+      return res.status(500).json({ error: 'Database connection failed' });
+    }
+  }
+  next();
+};
+
+// Standard middlewares & Lazy DB initializer
+app.use(cors());
+app.use(express.json());
+app.use(dbInitMiddleware);
+app.use(express.static(path.join(__dirname, 'public')));
+
+// ==========================================
+// AUTH MIDDLEWARE
+// ==========================================
+const authMiddleware = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Access denied. No credentials supplied.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+    
+    const user = await User.findByPk(decoded.id);
+    if (!user) {
+      return res.status(401).json({ error: 'Access denied. User profile not found.' });
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    res.status(401).json({ error: 'Access denied. Invalid or expired token.' });
+  }
+};
+
+// ==========================================
+// DYNAMIC PORTFOLIO RENDER ENDPOINT
+// ==========================================
+app.get('/shares/:uuid.html', async (req, res) => {
+  try {
+    const { uuid } = req.params;
+    const user = await User.findOne({ where: { uuid } });
+    if (!user) {
+      return res.status(404).send('<h1>Portfolio Not Found</h1><p>The shared candidate portfolio link is invalid.</p>');
+    }
+
+    const applications = await Application.findAll({
+      where: { userId: user.id },
+      order: [['applied_date', 'DESC']]
+    });
+
+    const htmlContent = generateHTML(user, applications);
+    res.setHeader('Content-Type', 'text/html');
+    res.send(htmlContent);
+  } catch (error) {
+    console.error('Error generating dynamic share page:', error);
+    res.status(500).send('Internal server error');
+  }
+});
 
 // ==========================================
 // AUTHENTICATION ENDPOINTS
@@ -491,9 +502,6 @@ app.post('/api/auth/register', async (req, res) => {
       username: trimmedUsername,
       password: hashedPassword
     });
-
-    // Generate initial static file
-    await triggerStaticUpdate(newUser.uuid);
 
     // Create token
     const token = jwt.sign({ id: newUser.id, email: newUser.email }, JWT_SECRET, { expiresIn: '7d' });
@@ -643,9 +651,6 @@ app.post('/api/applications', authMiddleware, async (req, res) => {
       userId: req.user.id
     });
 
-    // Auto-update the static portfolio page
-    await triggerStaticUpdate(req.user.uuid);
-
     res.status(201).json(appRecord);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -692,9 +697,6 @@ app.put('/api/applications/:id', authMiddleware, async (req, res) => {
       notes: notes !== undefined ? notes : appRecord.notes
     });
 
-    // Auto-update the static portfolio
-    await triggerStaticUpdate(req.user.uuid);
-
     res.json(appRecord);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -716,24 +718,15 @@ app.delete('/api/applications/:id', authMiddleware, async (req, res) => {
     }
 
     await appRecord.destroy();
-
-    // Auto-update the static portfolio
-    await triggerStaticUpdate(req.user.uuid);
-
     res.json({ message: 'Application deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Force manual publication/regeneration endpoint
+// Force publish endpoint (kept for retro-compatibility)
 app.post('/api/users/publish', authMiddleware, async (req, res) => {
-  try {
-    await triggerStaticUpdate(req.user.uuid);
-    res.json({ success: true, url: `/shares/${req.user.uuid}.html` });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  res.json({ success: true, url: `/shares/${req.user.uuid}.html` });
 });
 
 // Catch-all route to serve index.html for undefined requests
@@ -741,29 +734,12 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// ==========================================
-// START SERVER
-// ==========================================
-async function start() {
-  try {
-    // Authenticate and Sync DB
-    await sequelize.authenticate();
-    console.log('✅ Database connection established.');
-    
-    // Sync models
-    await sequelize.sync({ alter: true });
-    console.log('✅ Database models synchronized.');
+// Export app for Vercel Serverless environment wrapping
+module.exports = app;
 
-    // Seed database if empty
-    await seedDatabase();
-
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
-    });
-  } catch (error) {
-    console.error('❌ Database connection or server initialization failed:', error);
-    process.exit(1);
-  }
+// Conditional listener activation block for local CLI testing
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+  });
 }
-
-start();

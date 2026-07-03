@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jane Doe's Applytree Portfolio</title>
+  
+  <!-- Font & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Minimalist Styling -->
+  <style>
+    :root {
+      --bg-app: #f8fafc;
+      --bg-card: #ffffff;
+      --border-color: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      
+      /* Pure Solid Accents */
+      --primary: #4f46e5;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --info: #0891b2;
+      
+      --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      min-height: 100vh;
+      padding: 2rem 1.5rem;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    /* Header styling */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 1.25rem;
+    }
+
+    .logo-container h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+
+    /* Metrics Grid (2 Cards) */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 600px) {
+      .metrics-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .metric-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .metric-card.applied { border-left: 4px solid var(--primary); }
+    .metric-card.interview { border-left: 4px solid var(--warning); }
+
+    .metric-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+    }
+
+    .metric-card.applied .metric-icon { color: var(--primary); }
+    .metric-card.interview .metric-icon { color: var(--warning); }
+
+    .metric-info h3 {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-bottom: 0.15rem;
+    }
+
+    .metric-info .value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Visualizations Grid stacked vertically */
+    .visualizations-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .chart-container {
+      position: relative;
+      height: 450px;
+      width: 100%;
+    }
+
+    /* Table section */
+    .table-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      margin-bottom: 2rem;
+    }
+
+    .table-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 0.75rem;
+    }
+
+    .table-header-row h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .table-controls {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-box input {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 0.75rem 0.4rem 2rem;
+      color: var(--text-main);
+      font-family: var(--font-family);
+      font-size: 0.85rem;
+      outline: none;
+      transition: all 0.2s;
+      min-width: 200px;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary);
+      background: #ffffff;
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 0.65rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .filter-select {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.4rem 1.75rem 0.4rem 0.75rem;
+      color: var(--text-main);
+      font-family: var(--font-family);
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.5rem center;
+      background-size: 0.85rem;
+    }
+
+    .filter-select:focus {
+      border-color: var(--primary);
+    }
+
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    th {
+      background: #f8fafc;
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 0.75rem 1rem;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: #f8fafc;
+    }
+
+    .company-name {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .job-title {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      margin-top: 0.1rem;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .badge-pending { background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; }
+    .badge-offer { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+    .badge-rejected { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+    .badge-withdrawn { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+
+    .pipeline-text {
+      font-weight: 500;
+      color: var(--text-main);
+    }
+  </style>
+
+  <!-- Load Visualizations Scripts -->
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo-container">
+        <h1>Jane Doe's Applytree Portfolio</h1>
+      </div>
+    </header>
+
+    <!-- Metrics Grid (Total Applied, Interviews) -->
+    <div class="metrics-grid">
+      <div class="metric-card applied">
+        <div class="metric-icon">
+          <i class="fa-solid fa-paper-plane"></i>
+        </div>
+        <div class="metric-info">
+          <h3>Total Applied</h3>
+          <div class="value" id="metric-total">0</div>
+        </div>
+      </div>
+      
+      <div class="metric-card interview">
+        <div class="metric-icon">
+          <i class="fa-solid fa-comments"></i>
+        </div>
+        <div class="metric-info">
+          <h3>Interviews</h3>
+          <div class="value" id="metric-interview">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visualizations Grid Stacked -->
+    <div class="visualizations-grid">
+      <div class="chart-card">
+        <div id="sankey-chart" class="chart-container"></div>
+      </div>
+      
+      <div class="chart-card">
+        <div class="chart-container">
+          <canvas id="timeline-chart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Applications Table -->
+    <div class="table-card">
+      <div class="table-header-row">
+        <h2><i class="fa-solid fa-list-check"></i> Application Log</h2>
+        <div class="table-controls">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="search-input" placeholder="Search company or title...">
+          </div>
+          <select id="status-filter" class="filter-select">
+            <option value="ALL">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Offer">Offers</option>
+            <option value="Rejected">Rejections</option>
+            <option value="Withdrawn">Withdrawn</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Company & Role</th>
+              <th>Applied Date</th>
+              <th>Pipeline Status</th>
+              <th>Decision Status</th>
+            </tr>
+          </thead>
+          <tbody id="applications-table-body">
+            <!-- Dynamic items -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Embed Data -->
+  <script id="app-data" type="application/json">
+    {"user":{"id":1,"name":"Jane Doe","username":"jane","email":"jane@example.com","password":"$2a$10$nyc6PsXfOZSqWaipu.kdXOtxlHl6fg2ED8A6pnL7K8sFtMChUTofa","uuid":"jane-doe-portfolio-uuid-12345","createdAt":"2026-07-03T03:56:28.504Z","updatedAt":"2026-07-03T03:56:28.504Z"},"applications":[{"id":12,"company":"Slack","title":"Front End Engineer","applied_date":"2026-07-03","oa_checked":false,"oa_date":null,"interview_checked":false,"interview_date":null,"decision":"Pending","decision_date":null,"notes":"Standard application on company website.","createdAt":"2026-07-03T03:56:28.522Z","updatedAt":"2026-07-03T03:56:28.522Z","userId":1},{"id":11,"company":"Figma","title":"Product Engineer","applied_date":"2026-07-01","oa_checked":false,"oa_date":null,"interview_checked":false,"interview_date":null,"decision":"Pending","decision_date":null,"notes":"Fascinated by their multiplayer collaboration architecture. Hope to get an interview!","createdAt":"2026-07-03T03:56:28.521Z","updatedAt":"2026-07-03T03:56:28.521Z","userId":1},{"id":10,"company":"Uber","title":"Systems Engineer","applied_date":"2026-06-29","oa_checked":false,"oa_date":null,"interview_checked":false,"interview_date":null,"decision":"Pending","decision_date":null,"notes":"Recruiter reached out via LinkedIn.","createdAt":"2026-07-03T03:56:28.520Z","updatedAt":"2026-07-03T03:56:28.520Z","userId":1},{"id":9,"company":"Airbnb","title":"Backend Engineer","applied_date":"2026-06-26","oa_checked":false,"oa_date":null,"interview_checked":false,"interview_date":null,"decision":"Pending","decision_date":null,"notes":"Resume screening in progress.","createdAt":"2026-07-03T03:56:28.520Z","updatedAt":"2026-07-03T03:56:28.520Z","userId":1},{"id":7,"company":"OpenAI","title":"Research Engineer","applied_date":"2026-06-19","oa_checked":false,"oa_date":null,"interview_checked":true,"interview_date":"2026-06-26","decision":"Pending","decision_date":null,"notes":"Chatted with technical lead. Scheduled for final interview loops next week.","createdAt":"2026-07-03T03:56:28.518Z","updatedAt":"2026-07-03T03:56:28.518Z","userId":1},{"id":8,"company":"Tesla","title":"Firmware Engineer","applied_date":"2026-06-19","oa_checked":true,"oa_date":"2026-06-23","interview_checked":false,"interview_date":null,"decision":"Rejected","decision_date":null,"notes":"Automated rejection after OA submission.","createdAt":"2026-07-03T03:56:28.519Z","updatedAt":"2026-07-03T03:56:28.519Z","userId":1},{"id":6,"company":"Microsoft","title":"Solutions Architect","applied_date":"2026-06-12","oa_checked":false,"oa_date":null,"interview_checked":false,"interview_date":null,"decision":"Pending","decision_date":null,"notes":"Applied through university portal.","createdAt":"2026-07-03T03:56:28.517Z","updatedAt":"2026-07-03T03:56:28.517Z","userId":1},{"id":5,"company":"Amazon","title":"Software Development Engineer","applied_date":"2026-05-29","oa_checked":true,"oa_date":"2026-06-03","interview_checked":false,"interview_date":null,"decision":"Pending","decision_date":null,"notes":"Completed the OA. Relational and debugging sections felt solid.","createdAt":"2026-07-03T03:56:28.516Z","updatedAt":"2026-07-03T03:56:28.516Z","userId":1},{"id":4,"company":"Netflix","title":"UI Engineer","applied_date":"2026-05-19","oa_checked":false,"oa_date":null,"interview_checked":false,"interview_date":null,"decision":"Pending","decision_date":null,"notes":"Referral submitted. Waiting on recruiting team.","createdAt":"2026-07-03T03:56:28.515Z","updatedAt":"2026-07-03T03:56:28.515Z","userId":1},{"id":3,"company":"Stripe","title":"Fullstack Engineer","applied_date":"2026-05-04","oa_checked":true,"oa_date":"2026-05-09","interview_checked":true,"interview_date":"2026-05-24","decision":"Withdrawn","decision_date":"2026-05-29","notes":"Decided to withdraw after receiving the Google offer. Loved their interview layout.","createdAt":"2026-07-03T03:56:28.514Z","updatedAt":"2026-07-03T03:56:28.514Z","userId":1},{"id":2,"company":"Meta","title":"Production Engineer","applied_date":"2026-04-19","oa_checked":true,"oa_date":"2026-04-24","interview_checked":true,"interview_date":"2026-05-09","decision":"Rejected","decision_date":"2026-05-19","notes":"Passed the coding rounds but failed the systems design round. Review networks and load balancers.","createdAt":"2026-07-03T03:56:28.512Z","updatedAt":"2026-07-03T03:56:28.512Z","userId":1},{"id":1,"company":"Google","title":"Software Engineer","applied_date":"2026-04-04","oa_checked":true,"oa_date":"2026-04-09","interview_checked":true,"interview_date":"2026-04-24","decision":"Offer","decision_date":"2026-05-04","notes":"Received a competitive compensation package. Recruiter was highly responsive!","createdAt":"2026-07-03T03:56:28.510Z","updatedAt":"2026-07-03T03:56:28.510Z","userId":1}]}
+  </script>
+
+  <!-- Application Logic -->
+  <script>
+    // Load embedded data
+    const dataElement = document.getElementById('app-data');
+    const appData = JSON.parse(dataElement.textContent);
+    const applications = appData.applications;
+    
+    applications.sort((a, b) => new Date(b.applied_date) - new Date(a.applied_date));
+
+    let timelineChart = null;
+
+    google.charts.load('current', {'packages':['sankey']});
+    google.charts.setOnLoadCallback(renderSankeyChart);
+
+    window.addEventListener('DOMContentLoaded', () => {
+      calculateMetrics();
+      renderTimelineChart();
+      renderTable(applications);
+
+      document.getElementById('search-input').addEventListener('input', handleFilterChange);
+      document.getElementById('status-filter').addEventListener('change', handleFilterChange);
+    });
+
+    function calculateMetrics() {
+      const total = applications.length;
+      const interviews = applications.filter(app => app.interview_checked).length;
+
+      document.getElementById('metric-total').textContent = total;
+      document.getElementById('metric-interview').textContent = interviews + ' (' + (total ? Math.round(interviews/total*100) : 0) + '%)';
+    }
+
+    function renderSankeyChart() {
+      const container = document.getElementById('sankey-chart');
+      
+      const nonPendingApps = applications.filter(app => app.decision !== 'Pending');
+
+      if (nonPendingApps.length === 0) {
+        container.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);font-size:0.85rem;">No completed application workflows to show in Sankey diagram.</div>';
+        return;
+      }
+
+      const flows = {};
+      const addFlow = (source, target, value = 1) => {
+        const key = source + ' -> ' + target;
+        flows[key] = (flows[key] || 0) + value;
+      };
+
+      nonPendingApps.forEach(app => {
+        let current = 'Applied';
+
+        if (app.oa_checked) {
+          addFlow('Applied', 'Online Assessment');
+          current = 'Online Assessment';
+        }
+
+        if (app.interview_checked) {
+          addFlow(current, 'Interview');
+          current = 'Interview';
+        }
+
+        let target = '';
+        if (app.decision === 'Offer') {
+          target = 'Offer';
+        } else if (app.decision === 'Rejected') {
+          target = 'Rejected';
+        } else if (app.decision === 'Withdrawn') {
+          target = 'Withdrawn';
+        }
+
+        addFlow(current, target);
+      });
+
+      const dataTable = new google.visualization.DataTable();
+      dataTable.addColumn('string', 'From');
+      dataTable.addColumn('string', 'To');
+      dataTable.addColumn('number', 'Weight');
+
+      const rows = [];
+      Object.keys(flows).forEach(key => {
+        const [from, to] = key.split(' -> ');
+        rows.push([from, to, flows[key]]);
+      });
+
+      dataTable.addRows(rows);
+
+      const colors = ['#6366f1', '#06b6d4', '#d97706', '#16a34a', '#dc2626', '#64748b', '#a855f7'];
+
+      const options = {
+        sankey: {
+          node: {
+            colors: colors,
+            label: { color: '#0f172a', fontFamily: 'Inter', fontSize: 12, bold: true },
+            nodePadding: 24,
+            width: 12,
+            interactivity: true
+          },
+          link: {
+            colorMode: 'source', // Use solid color based on source node
+            color: { fillOpacity: 0.3 }
+          }
+        }
+      };
+
+      const chart = new google.visualization.Sankey(container);
+      
+      const observer = new ResizeObserver(() => {
+        chart.draw(dataTable, options);
+      });
+      observer.observe(container);
+      
+      chart.draw(dataTable, options);
+    }
+
+    function renderTimelineChart() {
+      const ctx = document.getElementById('timeline-chart').getContext('2d');
+      if (applications.length === 0) {
+        ctx.canvas.parentNode.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);">No applications found</div>';
+        return;
+      }
+
+      // Group by individual days (applied_date)
+      const dailyCounts = {};
+      const sortedChronological = [...applications].sort((a, b) => new Date(a.applied_date) - new Date(b.applied_date));
+      
+      sortedChronological.forEach(app => {
+        const dateKey = app.applied_date;
+        dailyCounts[dateKey] = (dailyCounts[dateKey] || 0) + 1;
+      });
+
+      const labels = Object.keys(dailyCounts).map(dateStr => {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' });
+      });
+      const data = Object.values(dailyCounts);
+
+      if (timelineChart) {
+        timelineChart.destroy();
+      }
+
+      timelineChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Jobs Applied',
+            data: data,
+            backgroundColor: 'rgba(79, 70, 229, 0.2)',
+            borderColor: '#4f46e5',
+            borderWidth: 1.5,
+            borderRadius: 4,
+            hoverBackgroundColor: 'rgba(79, 70, 229, 0.4)'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#ffffff',
+              titleColor: '#0f172a',
+              bodyColor: '#64748b',
+              borderColor: '#e2e8f0',
+              borderWidth: 1,
+              titleFont: { weight: 'bold' }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#64748b', font: { family: 'Inter', size: 10 } }
+            },
+            y: {
+              grid: { color: '#f1f5f9' },
+              ticks: { 
+                color: '#64748b', 
+                font: { family: 'Inter', size: 10 },
+                stepSize: 1,
+                precision: 0
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderTable(list) {
+      const tbody = document.getElementById('applications-table-body');
+      tbody.innerHTML = '';
+
+      if (list.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:2rem;">No applications match your search filters</td></tr>`;
+        return;
+      }
+
+      list.forEach(app => {
+        const tr = document.createElement('tr');
+        
+        let statusBadge = '';
+        if (app.decision === 'Offer') {
+          statusBadge = '<span class="badge badge-offer"><i class="fa-solid fa-circle-check"></i> Offer</span>';
+        } else if (app.decision === 'Rejected') {
+          statusBadge = '<span class="badge badge-rejected"><i class="fa-solid fa-circle-xmark"></i> Rejected</span>';
+        } else if (app.decision === 'Withdrawn') {
+          statusBadge = '<span class="badge badge-withdrawn"><i class="fa-solid fa-ban"></i> Withdrawn</span>';
+        } else {
+          statusBadge = '<span class="badge badge-pending"><i class="fa-solid fa-clock"></i> Pending</span>';
+        }
+
+        let pipelineStr = 'Applied';
+        if (app.interview_checked) {
+          pipelineStr = 'Interview';
+        } else if (app.oa_checked) {
+          pipelineStr = 'Online Assessment';
+        }
+
+        const dateStr = new Date(app.applied_date).toLocaleDateString(undefined, {
+          month: 'short', day: 'numeric', year: 'numeric'
+        });
+
+        tr.innerHTML = `
+          <td>
+            <div class="company-name">${escapeHtml(app.company)}</div>
+            <div class="job-title">${escapeHtml(app.title)}</div>
+          </td>
+          <td>${dateStr}</td>
+          <td class="pipeline-text">${pipelineStr}</td>
+          <td>${statusBadge}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function handleFilterChange() {
+      const searchQuery = document.getElementById('search-input').value.toLowerCase().trim();
+      const statusFilter = document.getElementById('status-filter').value;
+
+      const filtered = applications.filter(app => {
+        const matchesSearch = app.company.toLowerCase().includes(searchQuery) || 
+                              app.title.toLowerCase().includes(searchQuery);
+        
+        const matchesStatus = statusFilter === 'ALL' || app.decision === statusFilter;
+
+        return matchesSearch && matchesStatus;
+      });
+
+      renderTable(filtered);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+    }
+  </script>
+</body>
+</html>

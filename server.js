@@ -408,7 +408,9 @@ const dbInitMiddleware = async (req, res, next) => {
 app.use(cors());
 app.use(express.json());
 app.use(dbInitMiddleware);
-app.use(express.static(path.join(__dirname, 'public')));
+if (!process.env.VERCEL) {
+  app.use(express.static(path.join(__dirname, 'public')));
+}
 
 // ==========================================
 // AUTH MIDDLEWARE
@@ -729,10 +731,12 @@ app.post('/api/users/publish', authMiddleware, async (req, res) => {
   res.json({ success: true, url: `/shares/${req.user.uuid}.html` });
 });
 
-// Catch-all route to serve index.html for undefined requests
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+if (!process.env.VERCEL) {
+  // Catch-all route to serve index.html for undefined requests
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  });
+}
 
 // Export app for Vercel Serverless environment wrapping
 module.exports = app;

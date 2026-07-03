@@ -70,75 +70,6 @@ body {
 }
 
 /* ==========================================================================
-   AUTHENTICATION LAYOUT
-   ========================================================================== */
-.auth-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 1.5rem;
-  background-color: var(--bg-app);
-}
-
-.auth-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 2.5rem 2rem;
-  width: 100%;
-  max-width: 400px;
-  box-shadow: var(--shadow-md);
-}
-
-.auth-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.auth-logo {
-  font-size: 2rem;
-  color: var(--primary);
-  margin-bottom: 0.75rem;
-}
-
-.auth-header h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--text-main);
-}
-
-.auth-header p {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  margin-top: 0.25rem;
-}
-
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.auth-footer {
-  text-align: center;
-  margin-top: 1.5rem;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.auth-switch-link {
-  color: var(--primary);
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.auth-switch-link:hover {
-  text-decoration: underline;
-}
-
-/* ==========================================================================
    HEADER SECTION
    ========================================================================== */
 .main-header {
@@ -322,27 +253,6 @@ body {
   flex-direction: column;
 }
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--border-color);
-  margin-bottom: 1rem;
-}
-
-.card-header h2 {
-  font-size: 0.95rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.card-header h2 i {
-  color: var(--primary);
-}
-
 .chart-container-wrapper {
   flex: 1;
   position: relative;
@@ -515,13 +425,6 @@ select.theme-select:focus {
   box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
 }
 
-.table-inline-select.decision-select {
-  font-weight: 650;
-  text-transform: uppercase;
-  font-size: 0.72rem;
-  letter-spacing: 0.02em;
-}
-
 /* Cell details */
 .company-name-text {
   font-weight: 600;
@@ -544,9 +447,9 @@ select.theme-select:focus {
   justify-content: flex-end;
 }
 
-/* ==========================================================================
+/* ==========================================
    MODAL WINDOWS
-   ========================================================================== */
+   ========================================== */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -654,8 +557,6 @@ label {
 }
 
 input[type="text"],
-input[type="email"],
-input[type="password"],
 input[type="date"],
 select {
   background: #ffffff;
@@ -670,8 +571,6 @@ select {
 }
 
 input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus,
 input[type="date"]:focus,
 select:focus {
   border-color: var(--primary);
@@ -688,21 +587,9 @@ select:focus {
   padding-top: 1rem;
 }
 
-/* ==========================================================================
-   FOOTER SECTION
-   ========================================================================== */
-.app-footer {
-  text-align: center;
-  color: var(--text-light);
-  font-size: 0.75rem;
-  margin-top: auto;
-  padding: 2.5rem 0 1rem;
-  border-top: 1px solid var(--border-color);
-}
-
-/* ==========================================================================
+/* ==========================================
    COMPARISON WIDGET STYLING
-   ========================================================================== */
+   ========================================== */
 .compare-controls {
   display: flex;
   gap: 0.5rem;
@@ -730,23 +617,9 @@ select:focus {
   box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
 }
 
-.compare-table {
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.compare-table th {
-  background: #f8fafc;
-}
-
-.compare-table td {
-  padding: 0.65rem 1rem;
-}
-
-/* ==========================================================================
+/* ==========================================
    COMPARISON COLUMN GRID LAYOUT
-   ========================================================================== */
+   ========================================== */
 .comparison-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

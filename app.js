@@ -1,39 +1,215 @@
 // ==========================================
-// STATE MANAGEMENT
+// MOCK STATE MANAGEMENT
 // ==========================================
-let token = localStorage.getItem('token') || null;
-let currentUser = null;
-let applications = [];
-let timelineChart = null;
+const currentUser = {
+  name: 'Jane Doe',
+  username: 'jane',
+  uuid: 'jane-doe-portfolio-uuid-12345'
+};
 
-// Comparison State
-let comparedUser = null; // Stores target comparison user data
+// Seed Jane Doe's applications
+let applications = [
+  {
+    id: 1,
+    company: 'Google',
+    title: 'Software Engineer',
+    applied_date: getPastDateStr(90),
+    oa_checked: true,
+    interview_checked: true,
+    decision: 'Offer'
+  },
+  {
+    id: 2,
+    company: 'Meta',
+    title: 'Production Engineer',
+    applied_date: getPastDateStr(75),
+    oa_checked: true,
+    interview_checked: true,
+    decision: 'Rejected'
+  },
+  {
+    id: 3,
+    company: 'Stripe',
+    title: 'Fullstack Engineer',
+    applied_date: getPastDateStr(60),
+    oa_checked: true,
+    interview_checked: true,
+    decision: 'Withdrawn'
+  },
+  {
+    id: 4,
+    company: 'Netflix',
+    title: 'UI Engineer',
+    applied_date: getPastDateStr(45),
+    oa_checked: false,
+    interview_checked: false,
+    decision: 'Pending'
+  },
+  {
+    id: 5,
+    company: 'Amazon',
+    title: 'Software Development Engineer',
+    applied_date: getPastDateStr(35),
+    oa_checked: true,
+    interview_checked: false,
+    decision: 'Pending'
+  },
+  {
+    id: 6,
+    company: 'Microsoft',
+    title: 'Solutions Architect',
+    applied_date: getPastDateStr(21),
+    oa_checked: false,
+    interview_checked: false,
+    decision: 'Pending'
+  },
+  {
+    id: 7,
+    company: 'OpenAI',
+    title: 'Research Engineer',
+    applied_date: getPastDateStr(14),
+    oa_checked: false,
+    interview_checked: true,
+    decision: 'Pending'
+  },
+  {
+    id: 8,
+    company: 'Tesla',
+    title: 'Firmware Engineer',
+    applied_date: getPastDateStr(14),
+    oa_checked: true,
+    interview_checked: false,
+    decision: 'Rejected'
+  },
+  {
+    id: 9,
+    company: 'Airbnb',
+    title: 'Backend Engineer',
+    applied_date: getPastDateStr(7),
+    oa_checked: false,
+    interview_checked: false,
+    decision: 'Pending'
+  },
+  {
+    id: 10,
+    company: 'Uber',
+    title: 'Systems Engineer',
+    applied_date: getPastDateStr(4),
+    oa_checked: false,
+    interview_checked: false,
+    decision: 'Pending'
+  },
+  {
+    id: 11,
+    company: 'Figma',
+    title: 'Product Engineer',
+    applied_date: getPastDateStr(2),
+    oa_checked: false,
+    interview_checked: false,
+    decision: 'Pending'
+  },
+  {
+    id: 12,
+    company: 'Slack',
+    title: 'Front End Engineer',
+    applied_date: getPastDateStr(0),
+    oa_checked: false,
+    interview_checked: false,
+    decision: 'Pending'
+  }
+];
+
+// Seed Bob Smith's data for comparison
+const mockUsers = {
+  bob: {
+    name: 'Bob Smith',
+    username: 'bob',
+    applications: [
+      {
+        id: 101,
+        company: 'Meta',
+        title: 'Software Engineer',
+        applied_date: getPastDateStr(40),
+        oa_checked: true,
+        interview_checked: true,
+        decision: 'Offer'
+      },
+      {
+        id: 102,
+        company: 'Amazon',
+        title: 'Software Engineer',
+        applied_date: getPastDateStr(30),
+        oa_checked: true,
+        interview_checked: true,
+        decision: 'Rejected'
+      },
+      {
+        id: 103,
+        company: 'Microsoft',
+        title: 'Software Engineer',
+        applied_date: getPastDateStr(20),
+        oa_checked: false,
+        interview_checked: false,
+        decision: 'Pending'
+      },
+      {
+        id: 104,
+        company: 'Netflix',
+        title: 'UI Engineer',
+        applied_date: getPastDateStr(18),
+        oa_checked: true,
+        interview_checked: false,
+        decision: 'Rejected'
+      },
+      {
+        id: 105,
+        company: 'Apple',
+        title: 'iOS Engineer',
+        applied_date: getPastDateStr(10),
+        oa_checked: false,
+        interview_checked: false,
+        decision: 'Pending'
+      },
+      {
+        id: 106,
+        company: 'Uber',
+        title: 'Backend Engineer',
+        applied_date: getPastDateStr(7),
+        oa_checked: false,
+        interview_checked: false,
+        decision: 'Pending'
+      },
+      {
+        id: 107,
+        company: 'Lyft',
+        title: 'Fullstack Engineer',
+        applied_date: getPastDateStr(5),
+        oa_checked: false,
+        interview_checked: false,
+        decision: 'Pending'
+      },
+      {
+        id: 108,
+        company: 'Airbnb',
+        title: 'Backend Engineer',
+        applied_date: getPastDateStr(1),
+        oa_checked: false,
+        interview_checked: false,
+        decision: 'Pending'
+      }
+    ]
+  }
+};
+
+let timelineChart = null;
+let comparedUser = null;
 let compareTimelineChartYou = null;
 let compareTimelineChartThem = null;
 
 // ==========================================
 // DOM ELEMENTS
 // ==========================================
-const authScreen = document.getElementById('auth-screen');
-const dashboardScreen = document.getElementById('dashboard-screen');
-
-// Auth Form
-const formAuth = document.getElementById('form-auth');
-const authNameGroup = document.getElementById('auth-name-group');
-const authName = document.getElementById('auth-name');
-const authUsernameGroup = document.getElementById('auth-username-group');
-const authUsername = document.getElementById('auth-username');
-const authEmail = document.getElementById('auth-email');
-const authPassword = document.getElementById('auth-password');
-const btnAuthSubmit = document.getElementById('btn-auth-submit');
-const authSwitchLink = document.getElementById('auth-switch-link');
-const authSwitchText = document.getElementById('auth-switch-text');
-const authSubtitle = document.getElementById('auth-subtitle');
-
-// Dashboard Header
 const btnCopyLink = document.getElementById('btn-copy-link');
-const btnViewPortfolio = document.getElementById('btn-view-portfolio');
-const btnLogout = document.getElementById('btn-logout');
 
 // Metrics (Single View)
 const metricTotal = document.getElementById('metric-total');
@@ -51,7 +227,6 @@ const btnCompareClear = document.getElementById('btn-compare-clear');
 // Comparison Layout Elements
 const compareHeaderYou = document.getElementById('compare-header-you');
 const compareHeaderThem = document.getElementById('compare-header-them');
-
 const compareMetricsYouTotal = document.getElementById('compare-metrics-you-total');
 const compareMetricsYouInterview = document.getElementById('compare-metrics-you-interview');
 const compareMetricsThemTotal = document.getElementById('compare-metrics-them-total');
@@ -81,97 +256,19 @@ const formDecision = document.getElementById('form-decision');
 // ==========================================
 google.charts.load('current', { 'packages': ['sankey'] });
 google.charts.setOnLoadCallback(() => {
-  if (applications.length > 0) {
-    if (comparisonView.style.display === 'block') {
-      renderComparisonGraphics();
-    } else {
-      renderSankeyChart();
-    }
-  }
+  updateDashboard();
 });
 
 window.addEventListener('DOMContentLoaded', () => {
-  checkAuthSession();
   setupEventListeners();
+  updateDashboard();
 });
-
-// ==========================================
-// SESSION CHECKER
-// ==========================================
-async function checkAuthSession() {
-  if (!token) {
-    showAuthScreen();
-    return;
-  }
-
-  try {
-    const response = await fetch('/api/auth/me', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      currentUser = data.user;
-      showDashboardScreen();
-      fetchApplications();
-    } else {
-      logout();
-    }
-  } catch (error) {
-    console.error('Session validation error:', error);
-    showAuthScreen();
-  }
-}
-
-function showAuthScreen() {
-  authScreen.style.display = 'flex';
-  dashboardScreen.style.display = 'none';
-  toggleAuthMode('login');
-}
-
-function showDashboardScreen() {
-  authScreen.style.display = 'none';
-  dashboardScreen.style.display = 'block';
-  btnViewPortfolio.href = `/shares/${currentUser.uuid}.html`;
-  
-  clearComparison();
-}
-
-function logout() {
-  token = null;
-  currentUser = null;
-  applications = [];
-  localStorage.removeItem('token');
-  showAuthScreen();
-}
-
-// ==========================================
-// API MUTATIONS
-// ==========================================
-async function fetchApplications() {
-  try {
-    const response = await fetch('/api/applications', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch applications');
-    }
-
-    const data = await response.json();
-    applications = data.applications || [];
-    applications.sort((a, b) => new Date(b.applied_date) - new Date(a.applied_date));
-    
-    updateDashboard();
-  } catch (error) {
-    console.error('Error loading applications:', error);
-  }
-}
 
 // ==========================================
 // UI DRAWING / UPDATES
 // ==========================================
 function updateDashboard() {
+  applications.sort((a, b) => new Date(b.applied_date) - new Date(a.applied_date));
   filterAndRenderTable();
   
   if (comparisonView.style.display === 'block') {
@@ -292,65 +389,35 @@ function renderTable(list) {
   });
 }
 
-// Inline Pipeline status changer
-async function handleInlinePipelineChange(e) {
-  const appId = e.target.getAttribute('data-id');
+// In-memory Pipeline status changer
+function handleInlinePipelineChange(e) {
+  const appId = parseInt(e.target.getAttribute('data-id'));
   const value = e.target.value;
 
-  const payload = {
-    oa_checked: value === 'Online Assessment' || value === 'Interview',
-    interview_checked: value === 'Interview'
-  };
-
-  try {
-    const response = await fetch(`/api/applications/${appId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify(payload)
-    });
-
-    if (response.ok) {
-      await fetchApplications();
-    } else {
-      alert('Failed to update pipeline status.');
-    }
-  } catch (error) {
-    console.error('Error updating pipeline status:', error);
+  const app = applications.find(a => a.id === appId);
+  if (app) {
+    app.oa_checked = value === 'Online Assessment' || value === 'Interview';
+    app.interview_checked = value === 'Interview';
+    updateDashboard();
   }
 }
 
-// Inline Decision status changer
-async function handleInlineDecisionChange(e) {
-  const appId = e.target.getAttribute('data-id');
+// In-memory Decision status changer
+function handleInlineDecisionChange(e) {
+  const appId = parseInt(e.target.getAttribute('data-id'));
   const value = e.target.value;
 
-  try {
-    const response = await fetch(`/api/applications/${appId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ decision: value })
-    });
-
-    if (response.ok) {
-      await fetchApplications();
-    } else {
-      alert('Failed to update decision status.');
-    }
-  } catch (error) {
-    console.error('Error updating decision status:', error);
+  const app = applications.find(a => a.id === appId);
+  if (app) {
+    app.decision = value;
+    updateDashboard();
   }
 }
 
 // ==========================================
 // HEAD-TO-HEAD COMPARISON CONTROLLERS
 // ==========================================
-async function handleCompareSearch() {
+function handleCompareSearch() {
   const targetUsername = compareUsernameInput.value.trim().toLowerCase();
   
   if (!targetUsername) {
@@ -358,38 +425,26 @@ async function handleCompareSearch() {
     return;
   }
 
-  if (currentUser && targetUsername === currentUser.username.toLowerCase()) {
+  if (targetUsername === currentUser.username.toLowerCase()) {
     alert("You cannot compare stats against yourself.");
     return;
   }
 
-  try {
-    const response = await fetch(`/api/users/stats/${targetUsername}`);
-    
-    if (!response.ok) {
-      if (response.status === 404) {
-        alert(`Candidate user "${targetUsername}" not found.`);
-      } else {
-        alert('Failed to load user statistics.');
-      }
-      clearComparison();
-      return;
-    }
-
-    // Save compared user records
-    comparedUser = await response.json();
-    
-    // Toggle Layouts
-    singleUserView.style.display = 'none';
-    comparisonView.style.display = 'block';
-    btnCompareClear.style.display = 'inline-flex';
-
-    // Draw comparison data
-    renderComparisonGraphics();
-
-  } catch (error) {
-    console.error('Error fetching stats for comparison:', error);
+  const them = mockUsers[targetUsername];
+  if (!them) {
+    alert(`Candidate user "${targetUsername}" not found. Try entering 'bob'.`);
+    clearComparison();
+    return;
   }
+
+  comparedUser = them;
+  
+  // Toggle Layouts
+  singleUserView.style.display = 'none';
+  comparisonView.style.display = 'block';
+  btnCompareClear.style.display = 'inline-flex';
+
+  renderComparisonGraphics();
 }
 
 function renderComparisonGraphics() {
@@ -415,16 +470,15 @@ function renderComparisonGraphics() {
 
   compareMetricsYouInterview.textContent = `${youInterviews} (${youRate}%)`;
   compareMetricsThemInterview.textContent = `${themInterviews} (${themRate}%)`;
-  // Highlight based on absolute interviews volume or conversion rate (rate is cleaner)
   highlightComparisonWinners(compareMetricsYouInterview, compareMetricsThemInterview, youRate, themRate);
 
-  // 4. Render Sankey funnels side-by-side
+  // 4. Render Sankeys side-by-side
   if (google.visualization && google.visualization.Sankey) {
     drawCompareSankey('compare-sankey-you', applications);
     drawCompareSankey('compare-sankey-them', comparedUser.applications);
   }
 
-  // 5. Render Timeline bar charts side-by-side
+  // 5. Render Timelines side-by-side
   drawCompareTimeline('compare-timeline-you', applications, 'you');
   drawCompareTimeline('compare-timeline-them', comparedUser.applications, 'them');
 }
@@ -796,40 +850,23 @@ function renderTimelineChart() {
 }
 
 // ==========================================
-// EVENT LISTENERS & AUTH TOGGLE
+// EVENT LISTENERS & IN-MEMORY FORMS
 // ==========================================
 function setupEventListeners() {
-  // Toggle Auth Mode
-  authSwitchLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    toggleAuthMode(authMode === 'login' ? 'signup' : 'login');
-  });
-
-  // Submit Authentication Form
-  formAuth.addEventListener('submit', handleAuthSubmit);
-
   // Copy shareable link
   btnCopyLink.addEventListener('click', () => {
-    if (currentUser) {
-      const shareUrl = window.location.origin + `/shares/${currentUser.uuid}.html`;
-      navigator.clipboard.writeText(shareUrl)
-        .then(() => {
-          const origText = btnCopyLink.innerHTML;
-          btnCopyLink.innerHTML = `<i class="fa-solid fa-check"></i> <span>Copied!</span>`;
-          setTimeout(() => {
-            btnCopyLink.innerHTML = origText;
-          }, 1800);
-        })
-        .catch(err => {
-          console.error('Failed to copy share link:', err);
-          alert('Could not copy link. Manually copy the View Public Share Page URL.');
-        });
-    }
-  });
-
-  // Logout button
-  btnLogout.addEventListener('click', () => {
-    logout();
+    const shareUrl = window.location.href;
+    navigator.clipboard.writeText(shareUrl)
+      .then(() => {
+        const origText = btnCopyLink.innerHTML;
+        btnCopyLink.innerHTML = `<i class="fa-solid fa-check"></i> <span>Copied!</span>`;
+        setTimeout(() => {
+          btnCopyLink.innerHTML = origText;
+        }, 1800);
+      })
+      .catch(err => {
+        console.error('Failed to copy link:', err);
+      });
   });
 
   // Compare handlers
@@ -848,7 +885,7 @@ function setupEventListeners() {
     btn.addEventListener('click', () => closeModal(modalApp));
   });
 
-  // Save Application Form
+  // Save Application Form (In-Memory)
   formApp.addEventListener('submit', handleSaveApplication);
 
   // Live client-side filters
@@ -856,80 +893,8 @@ function setupEventListeners() {
   tableFilterStatus.addEventListener('change', filterAndRenderTable);
 }
 
-function toggleAuthMode(mode) {
-  authMode = mode;
-  formAuth.reset();
-  
-  if (authMode === 'login') {
-    authSubtitle.textContent = 'Sign in to manage your applications';
-    authNameGroup.style.display = 'none';
-    authName.removeAttribute('required');
-    authUsernameGroup.style.display = 'none';
-    authUsername.removeAttribute('required');
-    btnAuthSubmit.textContent = 'Sign In';
-    authSwitchText.innerHTML = `Don't have an account? <a href="#" id="auth-switch-link">Create one</a>`;
-  } else {
-    authSubtitle.textContent = 'Create an account to start tracking';
-    authNameGroup.style.display = 'flex';
-    authName.setAttribute('required', 'required');
-    authUsernameGroup.style.display = 'flex';
-    authUsername.setAttribute('required', 'required');
-    btnAuthSubmit.textContent = 'Register';
-    authSwitchText.innerHTML = `Already have an account? <a href="#" id="auth-switch-link">Sign In</a>`;
-  }
-
-  const newLink = document.getElementById('auth-switch-link');
-  newLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    toggleAuthMode(authMode === 'login' ? 'signup' : 'login');
-  });
-}
-
-// ==========================================
-// FORM SUBMIT HANDLERS
-// ==========================================
-async function handleAuthSubmit(e) {
-  e.preventDefault();
-
-  const payload = {
-    email: authEmail.value.trim(),
-    password: authPassword.value
-  };
-
-  let endpoint = '/api/auth/login';
-
-  if (authMode === 'signup') {
-    payload.name = authName.value.trim();
-    payload.username = authUsername.value.trim().toLowerCase();
-    endpoint = '/api/auth/register';
-  }
-
-  try {
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      token = data.token;
-      currentUser = data.user;
-      localStorage.setItem('token', token);
-      
-      showDashboardScreen();
-      fetchApplications();
-    } else {
-      alert(data.error || 'Authentication failed');
-    }
-  } catch (error) {
-    console.error('Authentication request error:', error);
-    alert('Failed to connect to authentication endpoints.');
-  }
-}
-
-async function handleSaveApplication(e) {
+// In-Memory Form Submit
+function handleSaveApplication(e) {
   e.preventDefault();
 
   const appId = formAppId.value;
@@ -944,59 +909,32 @@ async function handleSaveApplication(e) {
     decision: formDecision.value
   };
 
-  try {
-    let response;
-    if (appId) {
-      response = await fetch(`/api/applications/${appId}`, {
-        method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
-    } else {
-      response = await fetch('/api/applications', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
+  if (appId) {
+    // Edit existing
+    const app = applications.find(a => a.id == appId);
+    if (app) {
+      Object.assign(app, payload);
     }
-
-    if (response.ok) {
-      closeModal(modalApp);
-      await fetchApplications();
-    } else {
-      const err = await response.json();
-      alert(`Error saving: ${err.error}`);
-    }
-  } catch (error) {
-    console.error('Error saving application:', error);
+  } else {
+    // Add new
+    const nextId = applications.length ? Math.max(...applications.map(a => a.id)) + 1 : 1;
+    applications.push({
+      id: nextId,
+      ...payload
+    });
   }
+
+  closeModal(modalApp);
+  updateDashboard();
 }
 
-async function handleDeleteApp(id) {
+function handleDeleteApp(id) {
   if (!confirm('Are you sure you want to delete this application?')) {
     return;
   }
 
-  try {
-    const response = await fetch(`/api/applications/${id}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-
-    if (response.ok) {
-      await fetchApplications();
-    } else {
-      alert('Failed to delete application.');
-    }
-  } catch (error) {
-    console.error('Error deleting application:', error);
-  }
+  applications = applications.filter(a => a.id != id);
+  updateDashboard();
 }
 
 // ==========================================
@@ -1048,6 +986,12 @@ function closeModal(modal) {
 // ==========================================
 // HELPERS
 // ==========================================
+function getPastDateStr(daysAgo) {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  return d.toISOString().split('T')[0];
+}
+
 function getTodayDateStr() {
   const d = new Date();
   const year = d.getFullYear();

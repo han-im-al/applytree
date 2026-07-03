@@ -21,52 +21,9 @@
 <body>
 
   <!-- ==========================================
-       AUTH SCREEN (Login / Signup)
-       ========================================== -->
-  <div id="auth-screen" class="auth-wrapper">
-    <div class="auth-card">
-      <div class="auth-header">
-        <i class="fa-solid fa-leaf auth-logo"></i>
-        <h2>Applytree</h2>
-        <p id="auth-subtitle">Sign in to manage your applications</p>
-      </div>
-      
-      <form id="form-auth" class="auth-form">
-        <!-- Name (Hidden on Login) -->
-        <div class="form-group" id="auth-name-group">
-          <label for="auth-name">Full Name</label>
-          <input type="text" id="auth-name" placeholder="John Smith">
-        </div>
-
-        <!-- Username (Hidden on Login) -->
-        <div class="form-group" id="auth-username-group">
-          <label for="auth-username">Username</label>
-          <input type="text" id="auth-username" placeholder="janesmith">
-        </div>
-        
-        <div class="form-group">
-          <label for="auth-email">Email Address</label>
-          <input type="email" id="auth-email" required placeholder="john@example.com">
-        </div>
-        
-        <div class="form-group">
-          <label for="auth-password">Password</label>
-          <input type="password" id="auth-password" required placeholder="••••••••">
-        </div>
-        
-        <button type="submit" id="btn-auth-submit" class="btn btn-primary btn-block">Sign In</button>
-      </form>
-      
-      <div class="auth-footer">
-        <p id="auth-switch-text">Don't have an account? <a href="#" id="auth-switch-link">Create one</a></p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ==========================================
        DASHBOARD SCREEN
        ========================================== -->
-  <div id="dashboard-screen" class="app-container" style="display: none;">
+  <div id="dashboard-screen" class="app-container">
     
     <!-- Header -->
     <header class="main-header">
@@ -82,18 +39,6 @@
         <button id="btn-copy-link" class="btn btn-secondary" title="Copy Public Share Link">
           <i class="fa-regular fa-copy"></i>
           <span>Copy Link</span>
-        </button>
-
-        <!-- Live Static Portfolio URL -->
-        <a id="btn-view-portfolio" class="btn btn-secondary" target="_blank" href="#" title="View Static Webpage">
-          <i class="fa-solid fa-arrow-up-right-from-square"></i>
-          <span>View Public Share Page</span>
-        </a>
-        
-        <!-- Logout -->
-        <button id="btn-logout" class="btn btn-danger">
-          <i class="fa-solid fa-right-from-bracket"></i>
-          <span>Sign Out</span>
         </button>
       </div>
     </header>
